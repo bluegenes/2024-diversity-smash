@@ -1,0 +1,4 @@
+*.dmp
+*s.dmp.cache
+__pycache__
+*fna

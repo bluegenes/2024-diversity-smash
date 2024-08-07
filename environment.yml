@@ -1,0 +1,8 @@
+name: 2024-smash-diversity
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - sourmash>=4.8.10,<5
+  - screed>=1.0.0,<2
