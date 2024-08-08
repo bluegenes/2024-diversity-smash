@@ -1,4 +1,4 @@
-name: 2024-smash-diversity
+name: 2024-diversity-smash
 channels:
   - conda-forge
   - bioconda
@@ -6,3 +6,5 @@ channels:
 dependencies:
   - sourmash>=4.8.10,<5
   - screed>=1.0.0,<2
+  - pytaxonkit>=0.9.1,<1
+

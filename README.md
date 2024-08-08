@@ -1,1 +1,1 @@
-# 2024-smash-diversity
+# 2024-diversity-smash
