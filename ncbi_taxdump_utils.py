@@ -1,6 +1,6 @@
 """
 Utilities to deal with NCBI taxonomic foo.
-from: https://github.com/ctb/2022-assembly-summary-to-lineages/
+lightly modified from: https://github.com/ctb/2022-assembly-summary-to-lineages/
 """
 
 import gzip
@@ -135,21 +135,27 @@ class NCBI_TaxonomyFoo(object):
     def get_taxid_parent(self, taxid):
         return self.child_to_parent.get(taxid, None)
 
-    def get_lineage_as_taxids(self, taxid):
+    def get_lineage_as_taxids(self, taxid, want_taxonomy=None):
         """
         Extract the text taxonomic lineage in order (kingdom on down).
         """
         taxid = int(taxid)
 
         lineage = []
+        lineage.insert(0, taxid)
         while 1:
-            lineage.insert(0, taxid)
             taxid = self.get_taxid_parent(taxid)
+            if taxid == 1:
+                break
             if taxid is None:
                 raise ValueError('cannot find taxid {}'.format(taxid))
 
-            if taxid == 1:
-                break
+            rank = self.get_taxid_rank(taxid)
+            if self.is_strain(taxid): # NCBI reports strain as 'no rank'...
+                rank = 'strain'
+
+            if not want_taxonomy or rank in want_taxonomy:
+                lineage.insert(0, taxid)
 
         return lineage
 

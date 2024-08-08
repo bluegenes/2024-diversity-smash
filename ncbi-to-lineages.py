@@ -16,7 +16,7 @@ def main(args):
     taxfoo.load_names_dmp(args.names_dmp)
 
     w = csv.writer(args.output)
-    w.writerow(['ident', 'taxid'] + WANT_TAXONOMY)
+    w.writerow(['ident', 'taxpath'] + WANT_TAXONOMY)
 
     # get the taxid from gi #
     gi2taxid = {}
@@ -29,6 +29,7 @@ def main(args):
 
     # map full gi "acc" --> taxid
     lineages_count = 0
+    failed_lineages = 0
     with screed.open(args.ncbi_fasta) as seqfile:
         for record in seqfile:
             header = record.name
@@ -43,9 +44,19 @@ def main(args):
                     print(f"{gi_number}\tNo match found")
                     continue
                 lin_dict = taxfoo.get_lineage_as_dict(taxid, WANT_TAXONOMY)
+                lin_taxids = taxfoo.get_lineage_as_taxids(taxid, WANT_TAXONOMY) # remove 'cellular organisms' root
+                if len(lin_taxids) > len(WANT_TAXONOMY):
+                    # some have strain + below strain!?
+                    lin_taxids = lin_taxids[:-1]
+                if len(lin_taxids) != len(WANT_TAXONOMY):
+                    failed_lineages+=1
+                    print(f"WARNING: taxid {taxid} lineage has {len(lin_taxids)} ranks, expected {len(WANT_TAXONOMY)}")
+                    # To do: better way of getting taxpath so we don't ignore these????
+                    continue # just exclude these for now
+                taxpath = '|'.join(map(str, lin_taxids))
                 if not lin_dict:
                     print(f"WARNING: taxid {taxid} not in taxdump files. Producing empty lineage.")
-                row = [acc, taxid]
+                row = [acc, taxpath]
                 for rank in WANT_TAXONOMY:
                     name = lin_dict.get(rank, '')
                     row.append(name)
